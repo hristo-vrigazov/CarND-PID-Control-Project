@@ -35,6 +35,12 @@ to a fixed CTE (we are using 100.0, which is enough to get around the track once
 to be worse, we need to make the error function `1 / elapsed time`. But the values here could get pretty small so we take
 the log of it. So the error becomes something like `double error = log(1. / (std::clock() - start));`. The twiddle implemented
 in `ParameterTuner#RunFinished` method runs until a specified error threshold is exceeded. In our case, -13.5 seemed good enough.
+Once the tuning is finished, the best parameter values are printed to the console and we can now run the best found model:
+```
+./pid 0.05 0.004 1.3 0.2
+```
+
+Link to a video of a run with the tuned parameters: [here](https://www.youtube.com/watch?v=1PGH56JFFvk)
 
 ---
 
