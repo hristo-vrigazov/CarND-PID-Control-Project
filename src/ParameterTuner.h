@@ -5,12 +5,13 @@
 #ifndef PID_PARAMETERTUNER_H
 #define PID_PARAMETERTUNER_H
 
+#include <functional>
 #include "Parameters.h"
 
 
 class ParameterTuner {
 public:
-    Parameters FindBest(Parameters & initialValues);
+    void FindBest(Parameters & initialValues, std::function<void(Parameters)> callback);
 
 private:
     Parameters RunFinished(double error);
@@ -20,7 +21,9 @@ private:
     double bestError;
     unsigned i;
 
+    double thresholdError;
     bool direction;
+    std::function<void(Parameters)> callback;
 };
 
 

@@ -54,7 +54,7 @@ void Execution::run(double Kp, double Ki, double Kd, double throttle, bool resta
 //            std::cout << sum_of_squares_cte << std::endl;
 
             if (restartWhenCTEExceeds && sum_of_squares_cte > sum_of_squares_cte_threshold) {
-              std::clock_t elapsed_time = std::clock() - start;
+              double elapsed_time = log(1. / (std::clock() - start));
               Parameters new_parameters = callback(elapsed_time);
               std::string msg("42[\"reset\", {}]"); ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);
               sum_of_squares_cte = 0;
