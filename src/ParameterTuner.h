@@ -20,10 +20,7 @@ private:
 
     double bestError;
     unsigned i;
-
-    double thresholdError;
     bool direction;
-    std::function<void(Parameters)> callback;
 };
 
 

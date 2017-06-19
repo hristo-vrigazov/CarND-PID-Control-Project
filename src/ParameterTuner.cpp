@@ -10,21 +10,19 @@ void ParameterTuner::FindBest(Parameters & initialValues, std::function<void(Par
     this->parameterChanges[i] = 1.0;
   }
 
-  this->callback = callback;
   this->bestEstimate = initialValues;
   this->i = 0;
-  this->thresholdError = 100.0;
   this->direction = false;
   auto func = [this] (double error) {
       return this->RunFinished(error);
   };
-  Execution execution(func, thresholdError);
+  Execution execution(func, 100.0, -13.5, callback);
   execution.run(initialValues, true);
 }
 
 Parameters ParameterTuner::RunFinished(double error) {
 
-  std::cout << "Error: " << error << ", threshold: " << thresholdError << std::endl;
+  std::cout << "Error: " << error << std::endl;
 
   if (direction) {
     if (error < bestError) {

@@ -1,6 +1,41 @@
 # CarND-Controls-PID
 Self-Driving Car Engineer Nanodegree Program
 
+## How to run
+
+```
+mkdir build && cd build
+cmake .. && make
+./pid 0.05 0.004 1.3 0.2
+```
+
+## PID controller explanation
+
+The problem we are trying to solve is the following: we are trying to follow a given trajectory
+with our autonomous car. The CTE (cross track error) is measure of how well the car is doing. The PID controller
+is an algorithm which, based on the three components below, solves this problem.
+
+* Proportional - makes the output value proportional to the CTE.
+* Integral - takes care of accumulated error that has not been corrected.
+* Derivative - tries to predict system behavior
+
+## Parameter tuning - Twiddle
+
+The feasible parameters are found using twiddle. The class `Parameters` represents the
+parameters we are searching for, and can be instantiated by parsing command line arguments. The `main.cpp` file
+runs in two modes: train and execution. To run it in train, run:
+```
+./pid -t
+```
+This will initialize the parameters and start searching using twiddle. The search is performed by the class
+`ParameterTuner` by calling the method `FindBest`, which accepts the initial parameters and a callback for when the
+best parameters are found. In the `main.cpp` file, we initialize some random parameters and pass in callback that prints
+the best found parameters. For given parameters, we evaluate then every execution by calculating how fast it gets
+to a fixed CTE (we are using 100.0, which is enough to get around the track once). But since we want more elapsed time
+to be worse, we need to make the error function `1 / elapsed time`. But the values here could get pretty small so we take
+the log of it. So the error becomes something like `double error = log(1. / (std::clock() - start));`. The twiddle implemented
+in `ParameterTuner#RunFinished` method runs until a specified error threshold is exceeded. In our case, -13.5 seemed good enough.
+
 ---
 
 ## Dependencies

@@ -7,13 +7,13 @@ PID::PID() {}
 PID::~PID() {}
 
 void PID::Init(double Kp, double Ki, double Kd) {
-  this->Kp = Kp; // proportional
-  this->Ki = Ki; // integral
-  this->Kd = Kd; // differential
+  this->Kp = Kp;
+  this->Ki = Ki;
+  this->Kd = Kd;
 
-  p_error = 1.0;  // proportional cte
-  i_error = 0.0; // integral cte
-  d_error = 0.0; // differential cte
+  p_error = 1.0;
+  i_error = 0.0;
+  d_error = 0.0;
 }
 
 void PID::UpdateError(double cte) {

@@ -5,10 +5,14 @@
 #include "Execution.h"
 
 Execution::Execution(std::function<Parameters(double)> callback,
-                     double cte_threshold) {
+                     double cte_threshold,
+                     double error_threshold,
+                     std::function<void(Parameters)> parametersFoundCallback) {
   this->callback = callback;
   this->sum_of_squares_cte_threshold = cte_threshold;
   this->sum_of_squares_cte = 0;
+  this->error_threshold = error_threshold;
+  this->parametersFoundCallback = parametersFoundCallback;
 }
 
 
@@ -53,17 +57,28 @@ void Execution::run(double Kp, double Ki, double Kd, double throttle, bool resta
             sum_of_squares_cte += cte * cte;
 //            std::cout << sum_of_squares_cte << std::endl;
 
-            if (restartWhenCTEExceeds && sum_of_squares_cte > sum_of_squares_cte_threshold) {
-              double elapsed_time = log(1. / (std::clock() - start));
-              Parameters new_parameters = callback(elapsed_time);
-              std::string msg("42[\"reset\", {}]"); ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);
-              sum_of_squares_cte = 0;
-              start = std::clock();
-              std::cout << new_parameters.getKp() << ' ' << new_parameters.getKi() << ' ' << new_parameters.getKd() << ' '
-                        << new_parameters.getThrottle() << std::endl;
-              pid.Init(new_parameters.getKp(), new_parameters.getKi(), new_parameters.getKd());
-              throttle = new_parameters.getThrottle();
+            if (restartWhenCTEExceeds) {
+              if (sum_of_squares_cte > sum_of_squares_cte_threshold) {
+                double error = log(1. / (std::clock() - start));
+                if (error < error_threshold) {
+                  std::string msg("42[\"reset\", {}]");
+                  ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);
+                  this->parametersFoundCallback(Parameters(pid.Kp, pid.Ki, pid.Kd, throttle));
+                  exit(0);
+                }
+                Parameters new_parameters = callback(error);
+                std::string msg("42[\"reset\", {}]");
+                ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);
+                sum_of_squares_cte = 0;
+                start = std::clock();
+                std::cout << new_parameters.getKp() << ' ' << new_parameters.getKi() << ' ' << new_parameters.getKd()
+                          << ' '
+                          << new_parameters.getThrottle() << std::endl;
+                pid.Init(new_parameters.getKp(), new_parameters.getKi(), new_parameters.getKd());
+                throttle = new_parameters.getThrottle();
+              }
             }
+
 
             json msgJson;
             msgJson["steering_angle"] = steer_value;
